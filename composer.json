@@ -2,6 +2,7 @@
   "$schema": "https://getcomposer.org/schema.json",
   "name": "minter/website-cms",
   "type": "project",
+  "license": "proprietary",
   "description": "Ministry of the Interior public website and governed content management system.",
   "require": {
     "php": "^8.3",
