@@ -1,0 +1,1 @@
+@extends('layouts.public') @section('title','Contact') @section('content')<section class="section"><div class="container narrow"><p class="eyebrow">Contact</p><h1>Contact the Ministry</h1><p>Ministry of the Interior, P.O. Box M42, Accra, Ghana.</p><p>Emergency assistance should be directed to Police 191, Fire 192 or Ambulance 193.</p></div></section>@endsection

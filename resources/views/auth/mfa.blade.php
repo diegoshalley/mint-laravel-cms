@@ -1,0 +1,1 @@
+@extends('layouts.public') @section('title','Verification required') @section('content')<section class="section"><div class="container narrow"><h1>Additional verification required</h1><p>Your account requires a second authentication step. MFA enrollment and challenge verification will be completed in this phase before production use.</p></div></section>@endsection
