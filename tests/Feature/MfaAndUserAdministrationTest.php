@@ -34,8 +34,10 @@ it('forces staff to replace temporary passwords', function () {
 it('lets authorized administrators provision a role-bound staff account', function () {
     Permission::findOrCreate('users.manage');
     Role::findOrCreate('Editor');
+    $adminRole = Role::findOrCreate('CMS Administrator');
+    $adminRole->givePermissionTo('users.manage');
     $admin = User::factory()->create(['two_factor_confirmed_at' => now()]);
-    $admin->givePermissionTo('users.manage');
+    $admin->assignRole($adminRole);
 
     $this->actingAs($admin)->withSession(['mfa_passed' => true])->post(route('cms.users.store'), [
         'name' => 'Ama Mensah', 'email' => 'ama@example.gov.gh', 'role' => 'Editor',
@@ -48,8 +50,10 @@ it('lets authorized administrators provision a role-bound staff account', functi
 
 it('prevents administrators from disabling their own account', function () {
     Permission::findOrCreate('users.manage');
+    $adminRole = Role::findOrCreate('CMS Administrator');
+    $adminRole->givePermissionTo('users.manage');
     $admin = User::factory()->create(['two_factor_confirmed_at' => now()]);
-    $admin->givePermissionTo('users.manage');
+    $admin->assignRole($adminRole);
     $this->actingAs($admin)->withSession(['mfa_passed' => true])->post(route('cms.users.disable', $admin))->assertStatus(422);
     expect($admin->refresh()->is_active)->toBeTrue();
 });
