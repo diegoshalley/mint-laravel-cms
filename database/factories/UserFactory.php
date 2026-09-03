@@ -11,7 +11,8 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(), 'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(), 'password' => Hash::make('password'), 'mfa_enabled' => false,
+            'email_verified_at' => now(), 'password' => Hash::make('password'),
+            'is_active' => true, 'must_change_password' => false,
         ];
     }
 }

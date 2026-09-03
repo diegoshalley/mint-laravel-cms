@@ -5,11 +5,13 @@ namespace App\Providers;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Fortify;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        Fortify::ignoreRoutes();
         Paginator::useTailwind();
 
         Gate::before(fn ($user) => $user->hasRole('Super Administrator') ? true : null);

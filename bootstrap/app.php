@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Middleware\EnsureCmsAccess;
+use App\Http\Middleware\EnsureActiveUser;
+use App\Http\Middleware\EnsureMfaEnrolled;
 use App\Http\Middleware\EnsureMfaPassed;
+use App\Http\Middleware\EnsurePasswordChanged;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,7 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [SecurityHeaders::class]);
         $middleware->alias([
             'cms.access' => EnsureCmsAccess::class,
+            'active' => EnsureActiveUser::class,
+            'mfa.enrolled' => EnsureMfaEnrolled::class,
             'mfa' => EnsureMfaPassed::class,
+            'password.changed' => EnsurePasswordChanged::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

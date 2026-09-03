@@ -17,14 +17,17 @@
 - Append-only audit recording and restricted audit viewer
 - Attributable editorial comments, change requests and approval recommendations
 - Reason-required restoration of historical draft revisions as a new revision
+- Mandatory TOTP enrollment, login challenge and one-time recovery codes
+- Forced replacement of administrator-issued temporary passwords
+- Staff account provisioning, single-role assignment, disabling and re-enabling
+- Immediate rejection of disabled accounts, including existing sessions
 
 ## Still required before the Phase 1 gate can pass
 
-- Complete TOTP MFA enrollment, challenge, recovery codes and enforcement tests
 - Media upload validation, virus-scanning adapter and accessible metadata rules
 - Navigation manager and redirect administration
 - Side-by-side revision comparison and safe published-content replacement workflow
-- User administration and account lifecycle controls
+- Password reset delivery and recovery process for locked-out staff
 - Complete automated authorization and browser-flow coverage
 - Performance and accessibility baselines
 

@@ -13,8 +13,13 @@ return new class extends Migration {
             $table->string('email')->unique();
             $table->timestampTz('email_verified_at')->nullable();
             $table->string('password');
-            $table->boolean('mfa_enabled')->default(false);
-            $table->text('mfa_secret')->nullable();
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestampTz('two_factor_confirmed_at')->nullable();
+            $table->boolean('is_active')->default(true)->index();
+            $table->boolean('must_change_password')->default(true);
+            $table->timestampTz('disabled_at')->nullable();
+            $table->timestampTz('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestampsTz();
         });

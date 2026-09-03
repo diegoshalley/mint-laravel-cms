@@ -6,14 +6,11 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsureMfaPassed
+class EnsurePasswordChanged
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user()?->two_factor_confirmed_at && ! $request->session()->boolean('mfa_passed')) {
-            return redirect()->route('mfa.challenge');
-        }
-
+        if ($request->user()?->must_change_password) return redirect()->route('password.change')->with('status', 'Replace your temporary password before continuing.');
         return $next($request);
     }
 }
