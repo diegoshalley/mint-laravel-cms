@@ -34,10 +34,10 @@ it('forces staff to replace temporary passwords', function () {
 it('lets authorized administrators provision a role-bound staff account', function () {
     Permission::findOrCreate('users.manage');
     Role::findOrCreate('Editor');
-    $admin = User::factory()->create();
+    $admin = User::factory()->create(['two_factor_confirmed_at' => now()]);
     $admin->givePermissionTo('users.manage');
 
-    $this->actingAs($admin)->post(route('cms.users.store'), [
+    $this->actingAs($admin)->withSession(['mfa_passed' => true])->post(route('cms.users.store'), [
         'name' => 'Ama Mensah', 'email' => 'ama@example.gov.gh', 'role' => 'Editor',
         'password' => 'Temporary-Access-2026', 'password_confirmation' => 'Temporary-Access-2026',
     ])->assertRedirect(route('cms.users.index'));
@@ -48,8 +48,8 @@ it('lets authorized administrators provision a role-bound staff account', functi
 
 it('prevents administrators from disabling their own account', function () {
     Permission::findOrCreate('users.manage');
-    $admin = User::factory()->create();
+    $admin = User::factory()->create(['two_factor_confirmed_at' => now()]);
     $admin->givePermissionTo('users.manage');
-    $this->actingAs($admin)->post(route('cms.users.disable', $admin))->assertStatus(422);
+    $this->actingAs($admin)->withSession(['mfa_passed' => true])->post(route('cms.users.disable', $admin))->assertStatus(422);
     expect($admin->refresh()->is_active)->toBeTrue();
 });
