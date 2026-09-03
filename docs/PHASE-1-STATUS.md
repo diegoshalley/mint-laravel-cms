@@ -26,10 +26,13 @@
 - Required alternative text or explicit decorative marking for images
 - ClamAV scanning adapter with fail-closed release controls
 - Independent media approval, public-storage promotion, retirement and audit events
+- Database-driven primary/footer navigation with ordered links and one-level submenus
+- Internal/external navigation safety validation, visibility controls and audit history
+- Permanent/temporary legacy URL redirects with loop and excessive-chain prevention
+- Redirect usage counts, disabling controls and auditable administration
 
 ## Still required before the Phase 1 gate can pass
 
-- Navigation manager and redirect administration
 - Side-by-side revision comparison and safe published-content replacement workflow
 - Password reset delivery and recovery process for locked-out staff
 - Complete automated authorization and browser-flow coverage

@@ -17,7 +17,8 @@
         <div class="header-actions"><a href="{{ route('contact') }}">Contact</a><a class="emergency" href="#emergency">Emergency contacts</a></div>
     </div>
     <nav class="nav" aria-label="Primary navigation"><div class="container">
-        <a href="{{ route('home') }}">Home</a><a href="#about">About</a><a href="{{ route('services.index') }}">Services</a><a href="{{ route('agencies.index') }}">Agencies</a><a href="{{ route('publications.index') }}">News & Notices</a><a href="{{ route('documents.index') }}">Documents</a>
+        @forelse($primaryNavigation as $item)<span class="nav-item"><a href="{{ $item->destination }}" @if($item->open_in_new_tab)target="_blank" rel="noopener noreferrer"@endif>{{ $item->label }}</a>@if($item->children->isNotEmpty())<span class="submenu">@foreach($item->children as $child)<a href="{{ $child->destination }}" @if($child->open_in_new_tab)target="_blank" rel="noopener noreferrer"@endif>{{ $child->label }}</a>@endforeach</span>@endif</span>@empty
+        <a href="{{ route('home') }}">Home</a><a href="#about">About</a><a href="{{ route('services.index') }}">Services</a><a href="{{ route('agencies.index') }}">Agencies</a><a href="{{ route('publications.index') }}">News & Notices</a><a href="{{ route('documents.index') }}">Documents</a>@endforelse
         <form role="search" action="/search"><label class="sr-only" for="q">Search</label><input id="q" name="q" placeholder="Search this website"><button>Search</button></form>
     </div></nav>
 </header>

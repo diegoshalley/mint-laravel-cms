@@ -8,8 +8,11 @@ use App\Http\Controllers\Cms\AuditController;
 use App\Http\Controllers\Cms\DashboardController;
 use App\Http\Controllers\Cms\EditorialCommentController;
 use App\Http\Controllers\Cms\MediaController;
+use App\Http\Controllers\Cms\NavigationController;
+use App\Http\Controllers\Cms\RedirectController;
 use App\Http\Controllers\Cms\UserController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PublicRedirectController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -49,6 +52,10 @@ Route::middleware(['auth', 'active', 'verified', 'password.changed', 'mfa.enroll
         Route::resource('media', MediaController::class)->only(['index', 'create', 'store']);
         Route::post('media/{media}/approve', [MediaController::class, 'approve'])->name('media.approve');
         Route::post('media/{media}/retire', [MediaController::class, 'retire'])->name('media.retire');
+        Route::resource('navigation', NavigationController::class)->except(['show']);
+        Route::resource('redirects', RedirectController::class)->except(['show']);
         Route::post('users/{user}/disable', [UserController::class, 'disable'])->name('users.disable');
         Route::post('users/{user}/enable', [UserController::class, 'enable'])->name('users.enable');
     });
+
+Route::fallback(PublicRedirectController::class);

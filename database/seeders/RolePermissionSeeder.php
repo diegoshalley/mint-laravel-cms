@@ -13,7 +13,7 @@ class RolePermissionSeeder extends Seeder
         $permissions = [
             'content.view', 'content.create', 'content.edit', 'content.submit',
             'content.review', 'content.approve', 'content.publish', 'content.archive', 'content.rollback',
-            'media.manage', 'media.approve', 'users.manage', 'audit.view',
+            'media.manage', 'media.approve', 'navigation.manage', 'redirects.manage', 'users.manage', 'audit.view',
         ];
         foreach ($permissions as $permission) Permission::findOrCreate($permission, 'web');
 
