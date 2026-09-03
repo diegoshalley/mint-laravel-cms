@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('navigation_items', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->string('location', 30)->default('primary')->index();
-            $table->foreignUuid('parent_id')->nullable()->constrained('navigation_items')->cascadeOnDelete();
+            $table->uuid('parent_id')->nullable();
             $table->string('label', 100);
             $table->string('destination', 500);
             $table->unsignedSmallInteger('position')->default(0);
@@ -20,6 +20,10 @@ return new class extends Migration {
             $table->foreignUuid('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestampsTz();
             $table->index(['location', 'position']);
+        });
+
+        Schema::table('navigation_items', function (Blueprint $table): void {
+            $table->foreign('parent_id')->references('id')->on('navigation_items')->cascadeOnDelete();
         });
 
         Schema::create('redirects', function (Blueprint $table): void {
