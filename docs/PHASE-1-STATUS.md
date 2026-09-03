@@ -14,15 +14,16 @@
 - Citizen-first public homepage and core navigation shells
 - Security response headers
 - PostgreSQL CI pipeline with migrations, formatting and feature tests
+- Append-only audit recording and restricted audit viewer
+- Attributable editorial comments, change requests and approval recommendations
+- Reason-required restoration of historical draft revisions as a new revision
 
 ## Still required before the Phase 1 gate can pass
 
 - Complete TOTP MFA enrollment, challenge, recovery codes and enforcement tests
 - Media upload validation, virus-scanning adapter and accessible metadata rules
 - Navigation manager and redirect administration
-- Immutable audit-event writer and administrative audit viewer
-- Revision comparison and rollback interface
-- Editorial comments and reviewer recommendation step
+- Side-by-side revision comparison and safe published-content replacement workflow
 - User administration and account lifecycle controls
 - Complete automated authorization and browser-flow coverage
 - Performance and accessibility baselines

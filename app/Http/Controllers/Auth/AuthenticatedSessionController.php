@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\AuditRecorder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,7 @@ class AuthenticatedSessionController extends Controller
 {
     public function create(): View { return view('auth.login'); }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, AuditRecorder $audit): RedirectResponse
     {
         $credentials = $request->validate(['email' => ['required', 'email'], 'password' => ['required', 'string']]);
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
@@ -20,11 +21,13 @@ class AuthenticatedSessionController extends Controller
         }
         $request->session()->regenerate();
         $request->session()->put('mfa_passed', ! $request->user()->mfa_enabled);
+        $audit->record('auth.login.succeeded', $request->user());
         return redirect()->intended(route('cms.dashboard'));
     }
 
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request, AuditRecorder $audit): RedirectResponse
     {
+        $audit->record('auth.logout', $request->user());
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

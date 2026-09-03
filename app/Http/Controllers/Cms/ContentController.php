@@ -6,6 +6,8 @@ use App\Enums\ContentType;
 use App\Enums\PublishingStatus;
 use App\Http\Controllers\Controller;
 use App\Models\ContentItem;
+use App\Models\ContentRevision;
+use App\Services\AuditRecorder;
 use App\Services\ContentWorkflow;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,13 +25,14 @@ class ContentController extends Controller
 
     public function create(): View { return view('cms.content.form', ['item' => new ContentItem, 'types' => ContentType::cases()]); }
 
-    public function store(Request $request, ContentWorkflow $workflow): RedirectResponse
+    public function store(Request $request, ContentWorkflow $workflow, AuditRecorder $audit): RedirectResponse
     {
         abort_unless($request->user()->can('content.create'), 403);
         $data = $this->validated($request);
-        $item = DB::transaction(function () use ($data, $request, $workflow) {
+        $item = DB::transaction(function () use ($data, $request, $workflow, $audit) {
             $item = ContentItem::create([...$data, 'slug' => $data['slug'] ?: Str::slug($data['title']), 'content' => ['body' => $data['body']], 'author_id' => $request->user()->id, 'status' => PublishingStatus::Draft]);
             $workflow->snapshot($item, $request->user(), 'Initial draft');
+            $audit->record('content.created', $request->user(), $item, null, $item->only(['type', 'title', 'slug', 'locale']));
             return $item;
         });
         return redirect()->route('cms.content.edit', $item)->with('status', 'Draft created.');
@@ -37,16 +40,25 @@ class ContentController extends Controller
 
     public function edit(ContentItem $content): View { return view('cms.content.form', ['item' => $content, 'types' => ContentType::cases()]); }
 
-    public function update(Request $request, ContentItem $content, ContentWorkflow $workflow): RedirectResponse
+    public function update(Request $request, ContentItem $content, ContentWorkflow $workflow, AuditRecorder $audit): RedirectResponse
     {
         abort_unless($request->user()->can('content.edit') && $content->status === PublishingStatus::Draft, 403);
         $data = $this->validated($request, $content);
-        DB::transaction(function () use ($content, $data, $request, $workflow) {
+        DB::transaction(function () use ($content, $data, $request, $workflow, $audit) {
+            $before = $content->only(['type', 'title', 'slug', 'summary', 'content', 'locale', 'current_revision']);
             $content->increment('current_revision');
             $content->update([...$data, 'slug' => $data['slug'] ?: Str::slug($data['title']), 'content' => ['body' => $data['body']]]);
             $workflow->snapshot($content->refresh(), $request->user(), $request->string('change_note')->toString());
+            $audit->record('content.updated', $request->user(), $content, $before, $content->only(['type', 'title', 'slug', 'summary', 'content', 'locale', 'current_revision']));
         });
         return back()->with('status', 'Draft saved as a new revision.');
+    }
+
+    public function restore(Request $request, ContentItem $content, ContentRevision $revision, ContentWorkflow $workflow): RedirectResponse
+    {
+        $data = $request->validate(['reason' => ['required', 'string', 'max:1000']]);
+        $workflow->restoreDraftRevision($content, $revision, $request->user(), $data['reason']);
+        return back()->with('status', "Revision {$revision->revision} restored as a new draft revision.");
     }
 
     public function transition(Request $request, ContentItem $content, ContentWorkflow $workflow): RedirectResponse

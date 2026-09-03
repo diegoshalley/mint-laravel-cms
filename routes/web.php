@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Cms\ContentController;
+use App\Http\Controllers\Cms\AuditController;
 use App\Http\Controllers\Cms\DashboardController;
+use App\Http\Controllers\Cms\EditorialCommentController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,4 +29,7 @@ Route::middleware(['auth', 'verified', 'mfa', 'cms.access'])
         Route::get('/', DashboardController::class)->name('dashboard');
         Route::resource('content', ContentController::class)->except(['show', 'destroy']);
         Route::post('content/{content}/transition', [ContentController::class, 'transition'])->name('content.transition');
+        Route::post('content/{content}/comments', [EditorialCommentController::class, 'store'])->name('content.comments.store');
+        Route::post('content/{content}/revisions/{revision}/restore', [ContentController::class, 'restore'])->name('content.revisions.restore');
+        Route::get('audit', AuditController::class)->name('audit.index');
     });

@@ -35,6 +35,7 @@ class ContentItem extends Model
     public function publisher(): BelongsTo { return $this->belongsTo(User::class, 'publisher_id'); }
     public function revisions(): HasMany { return $this->hasMany(ContentRevision::class); }
     public function transitions(): HasMany { return $this->hasMany(WorkflowTransition::class); }
+    public function comments(): HasMany { return $this->hasMany(EditorialComment::class); }
 
     public function scopeVisible($query)
     {

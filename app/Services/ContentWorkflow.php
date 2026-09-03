@@ -13,6 +13,8 @@ use Illuminate\Validation\ValidationException;
 
 class ContentWorkflow
 {
+    public function __construct(private readonly AuditRecorder $audit) {}
+
     public function submit(ContentItem $item, User $actor): ContentItem
     {
         $this->authorize($actor, 'content.submit');
@@ -70,6 +72,28 @@ class ContentWorkflow
                 'to_status' => $to->value, 'performed_by' => $actor->getKey(),
                 'reason' => $reason, 'context' => ['ip' => request()?->ip()], 'created_at' => now(),
             ]);
+            $this->audit->record('content.workflow.transitioned', $actor, $item, ['status' => $from->value], ['status' => $to->value, 'reason' => $reason]);
+            return $item->refresh();
+        });
+    }
+
+    public function restoreDraftRevision(ContentItem $item, ContentRevision $revision, User $actor, string $reason): ContentItem
+    {
+        $this->authorize($actor, 'content.rollback');
+        $this->requireStatus($item, PublishingStatus::Draft);
+        if ($revision->content_item_id !== $item->getKey()) abort(404);
+        if (trim($reason) === '') throw ValidationException::withMessages(['reason' => 'A rollback reason is required.']);
+
+        return DB::transaction(function () use ($item, $revision, $actor, $reason): ContentItem {
+            $before = $item->only(['title', 'slug', 'summary', 'content', 'locale', 'current_revision']);
+            $snapshot = $revision->snapshot;
+            $item->update([
+                'type' => $snapshot['type'], 'title' => $snapshot['title'], 'slug' => $snapshot['slug'],
+                'summary' => $snapshot['summary'], 'content' => $snapshot['content'], 'locale' => $snapshot['locale'],
+                'current_revision' => $item->current_revision + 1,
+            ]);
+            $this->snapshot($item->refresh(), $actor, "Restored revision {$revision->revision}: {$reason}");
+            $this->audit->record('content.revision.restored', $actor, $item, $before, ['revision' => $item->current_revision, 'restored_from' => $revision->revision, 'reason' => $reason]);
             return $item->refresh();
         });
     }
