@@ -7,6 +7,7 @@ use App\Http\Controllers\Cms\ContentController;
 use App\Http\Controllers\Cms\AuditController;
 use App\Http\Controllers\Cms\DashboardController;
 use App\Http\Controllers\Cms\EditorialCommentController;
+use App\Http\Controllers\Cms\MediaController;
 use App\Http\Controllers\Cms\UserController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,9 @@ Route::middleware(['auth', 'active', 'verified', 'password.changed', 'mfa.enroll
         Route::post('content/{content}/revisions/{revision}/restore', [ContentController::class, 'restore'])->name('content.revisions.restore');
         Route::get('audit', AuditController::class)->name('audit.index');
         Route::resource('users', UserController::class)->except(['show', 'destroy']);
+        Route::resource('media', MediaController::class)->only(['index', 'create', 'store']);
+        Route::post('media/{media}/approve', [MediaController::class, 'approve'])->name('media.approve');
+        Route::post('media/{media}/retire', [MediaController::class, 'retire'])->name('media.retire');
         Route::post('users/{user}/disable', [UserController::class, 'disable'])->name('users.disable');
         Route::post('users/{user}/enable', [UserController::class, 'enable'])->name('users.enable');
     });

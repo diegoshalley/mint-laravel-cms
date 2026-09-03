@@ -21,10 +21,14 @@
 - Forced replacement of administrator-issued temporary passwords
 - Staff account provisioning, single-role assignment, disabling and re-enabling
 - Immediate rejection of disabled accounts, including existing sessions
+- Private media quarantine with generated storage names and SHA-256 checksums
+- Server-verified upload allow-list, size limits and SVG/executable blocking
+- Required alternative text or explicit decorative marking for images
+- ClamAV scanning adapter with fail-closed release controls
+- Independent media approval, public-storage promotion, retirement and audit events
 
 ## Still required before the Phase 1 gate can pass
 
-- Media upload validation, virus-scanning adapter and accessible metadata rules
 - Navigation manager and redirect administration
 - Side-by-side revision comparison and safe published-content replacement workflow
 - Password reset delivery and recovery process for locked-out staff

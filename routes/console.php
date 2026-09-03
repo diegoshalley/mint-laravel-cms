@@ -2,6 +2,8 @@
 
 use App\Enums\PublishingStatus;
 use App\Models\ContentItem;
+use App\Models\MediaAsset;
+use App\Services\MediaWorkflow;
 use App\Models\WorkflowTransition;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -29,3 +31,11 @@ Artisan::command('content:publish-scheduled', function (): int {
 })->purpose('Publish approved content whose scheduled time has arrived');
 
 Schedule::command('content:publish-scheduled')->everyMinute()->withoutOverlapping();
+
+Artisan::command('media:scan-pending', function (MediaWorkflow $workflow): int {
+    MediaAsset::query()->where('status', 'draft')->whereIn('scan_status', ['pending', 'failed'])
+        ->oldest()->limit(100)->get()->each(fn (MediaAsset $asset) => $workflow->scan($asset));
+    return 0;
+})->purpose('Scan quarantined media and documents for malware');
+
+Schedule::command('media:scan-pending')->everyMinute()->withoutOverlapping();
