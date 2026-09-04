@@ -7,6 +7,9 @@ use App\Models\User;
 use App\Services\AuditRecorder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
@@ -73,6 +76,24 @@ class UserController extends Controller
         $user->forceFill(['is_active' => true, 'disabled_at' => null])->save();
         $audit->record('user.enabled', $request->user(), $user, ['is_active' => false], ['is_active' => true]);
         return back()->with('status', 'Staff account enabled.');
+    }
+
+    public function resetSecurity(Request $request, User $user, AuditRecorder $audit): RedirectResponse
+    {
+        $this->authorizeAccess($request);
+        abort_if($request->user()->is($user), 422, 'A second administrator must perform account recovery.');
+        abort_unless($user->is_active, 422, 'Enable the account before starting recovery.');
+        DB::transaction(function () use ($user, $request, $audit): void {
+            $before = ['two_factor_confirmed_at' => $user->two_factor_confirmed_at, 'must_change_password' => $user->must_change_password];
+            $user->forceFill([
+                'two_factor_secret' => null, 'two_factor_recovery_codes' => null, 'two_factor_confirmed_at' => null,
+                'must_change_password' => true, 'remember_token' => Str::random(60),
+            ])->save();
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+            Password::broker()->deleteToken($user);
+            $audit->record('user.security_recovery.initiated', $request->user(), $user, $before, ['two_factor_confirmed_at' => null, 'must_change_password' => true]);
+        });
+        return back()->with('status', 'Security recovery started. Existing sessions and reset links were revoked. The staff member must change their password and enroll MFA again.');
     }
 
     private function validated(Request $request): array

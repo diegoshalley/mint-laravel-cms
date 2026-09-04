@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\MfaController;
 use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Cms\ContentController;
 use App\Http\Controllers\Cms\AuditController;
 use App\Http\Controllers\Cms\DashboardController;
@@ -25,6 +26,10 @@ Route::view('/contact', 'public.contact')->name('contact');
 Route::middleware('guest')->group(function (): void {
     Route::get('/cms/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/cms/login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:5,1');
+    Route::get('/cms/forgot-password', [PasswordResetController::class, 'requestForm'])->name('password.request');
+    Route::post('/cms/forgot-password', [PasswordResetController::class, 'sendLink'])->middleware('throttle:3,1')->name('password.email');
+    Route::get('/cms/reset-password/{token}', [PasswordResetController::class, 'resetForm'])->name('password.reset');
+    Route::post('/cms/reset-password', [PasswordResetController::class, 'reset'])->middleware('throttle:5,1')->name('password.update');
 });
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth')->name('logout');
 Route::middleware(['auth', 'active'])->group(function (): void {
@@ -56,6 +61,7 @@ Route::middleware(['auth', 'active', 'verified', 'password.changed', 'mfa.enroll
         Route::resource('redirects', RedirectController::class)->except(['show']);
         Route::post('users/{user}/disable', [UserController::class, 'disable'])->name('users.disable');
         Route::post('users/{user}/enable', [UserController::class, 'enable'])->name('users.enable');
+        Route::post('users/{user}/reset-security', [UserController::class, 'resetSecurity'])->name('users.reset-security');
     });
 
 Route::fallback(PublicRedirectController::class);

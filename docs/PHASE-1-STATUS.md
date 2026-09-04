@@ -30,11 +30,13 @@
 - Internal/external navigation safety validation, visibility controls and audit history
 - Permanent/temporary legacy URL redirects with loop and excessive-chain prevention
 - Redirect usage counts, disabling controls and auditable administration
+- Enumeration-resistant password reset requests with throttling and 30-minute expiry
+- Strong password rules, single-use tokens, session revocation and reset audit events
+- Two-administrator lockout recovery with MFA/reset-token/session revocation
 
 ## Still required before the Phase 1 gate can pass
 
 - Side-by-side revision comparison and safe published-content replacement workflow
-- Password reset delivery and recovery process for locked-out staff
 - Complete automated authorization and browser-flow coverage
 - Performance and accessibility baselines
 
