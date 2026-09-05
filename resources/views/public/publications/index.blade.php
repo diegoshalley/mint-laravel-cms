@@ -1,0 +1,1 @@
+@extends('layouts.public') @section('title','News and Notices') @section('content')<section class="section"><div class="container"><p class="eyebrow">Official updates</p><h1>News, notices and press releases</h1><div class="empty-state">Approved Ministry publications will appear here.</div></div></section>@endsection

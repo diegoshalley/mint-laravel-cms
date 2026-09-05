@@ -1,18 +1,72 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\MfaController;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Cms\ContentController;
+use App\Http\Controllers\Cms\ContentReplacementController;
+use App\Http\Controllers\Cms\AuditController;
+use App\Http\Controllers\Cms\DashboardController;
+use App\Http\Controllers\Cms\EditorialCommentController;
+use App\Http\Controllers\Cms\MediaController;
+use App\Http\Controllers\Cms\NavigationController;
+use App\Http\Controllers\Cms\RedirectController;
+use App\Http\Controllers\Cms\UserController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PublicRedirectController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'public.home')->name('home');
+Route::get('/', HomeController::class)->name('home');
 Route::view('/services', 'public.services.index')->name('services.index');
 Route::view('/agencies', 'public.agencies.index')->name('agencies.index');
 Route::view('/news-notices', 'public.publications.index')->name('publications.index');
 Route::view('/documents', 'public.documents.index')->name('documents.index');
 Route::view('/contact', 'public.contact')->name('contact');
 
-Route::middleware(['auth', 'verified', 'mfa', 'cms.access'])
+Route::middleware('guest')->group(function (): void {
+    Route::get('/cms/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/cms/login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:5,1');
+    Route::get('/cms/forgot-password', [PasswordResetController::class, 'requestForm'])->name('password.request');
+    Route::post('/cms/forgot-password', [PasswordResetController::class, 'sendLink'])->middleware('throttle:3,1')->name('password.email');
+    Route::get('/cms/reset-password/{token}', [PasswordResetController::class, 'resetForm'])->name('password.reset');
+    Route::post('/cms/reset-password', [PasswordResetController::class, 'reset'])->middleware('throttle:5,1')->name('password.update');
+});
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth')->name('logout');
+Route::middleware(['auth', 'active'])->group(function (): void {
+    Route::get('/password/change', [PasswordController::class, 'edit'])->name('password.change');
+    Route::put('/password/change', [PasswordController::class, 'update']);
+    Route::get('/mfa/challenge', fn () => view('auth.mfa'))->name('mfa.challenge');
+    Route::post('/mfa/challenge', [MfaController::class, 'challenge'])->middleware('throttle:5,1');
+    Route::get('/cms/security/mfa', [MfaController::class, 'settings'])->name('mfa.settings');
+    Route::post('/cms/security/mfa', [MfaController::class, 'enable'])->middleware('password.changed')->name('mfa.enable');
+    Route::post('/cms/security/mfa/confirm', [MfaController::class, 'confirm'])->middleware('password.changed')->name('mfa.confirm');
+    Route::delete('/cms/security/mfa', [MfaController::class, 'disable'])->middleware(['password.changed', 'mfa'])->name('mfa.disable');
+});
+
+Route::middleware(['auth', 'active', 'verified', 'password.changed', 'mfa.enrolled', 'mfa', 'cms.access'])
     ->prefix('cms')
     ->name('cms.')
     ->group(function (): void {
-        Route::view('/', 'cms.dashboard')->name('dashboard');
+        Route::get('/', DashboardController::class)->name('dashboard');
+        Route::resource('content', ContentController::class)->except(['show', 'destroy']);
+        Route::post('content/{content}/transition', [ContentController::class, 'transition'])->name('content.transition');
+        Route::post('content/{content}/comments', [EditorialCommentController::class, 'store'])->name('content.comments.store');
+        Route::post('content/{content}/revisions/{revision}/restore', [ContentController::class, 'restore'])->name('content.revisions.restore');
+        Route::post('content/{content}/replacement', [ContentReplacementController::class, 'store'])->name('content.replacements.store');
+        Route::get('replacements/{replacement}/edit', [ContentReplacementController::class, 'edit'])->name('replacements.edit');
+        Route::put('replacements/{replacement}', [ContentReplacementController::class, 'update'])->name('replacements.update');
+        Route::post('replacements/{replacement}/transition', [ContentReplacementController::class, 'transition'])->name('replacements.transition');
+        Route::get('audit', AuditController::class)->name('audit.index');
+        Route::resource('users', UserController::class)->except(['show', 'destroy']);
+        Route::resource('media', MediaController::class)->only(['index', 'create', 'store']);
+        Route::post('media/{media}/approve', [MediaController::class, 'approve'])->name('media.approve');
+        Route::post('media/{media}/retire', [MediaController::class, 'retire'])->name('media.retire');
+        Route::resource('navigation', NavigationController::class)->except(['show']);
+        Route::resource('redirects', RedirectController::class)->except(['show']);
+        Route::post('users/{user}/disable', [UserController::class, 'disable'])->name('users.disable');
+        Route::post('users/{user}/enable', [UserController::class, 'enable'])->name('users.enable');
+        Route::post('users/{user}/reset-security', [UserController::class, 'resetSecurity'])->name('users.reset-security');
     });
 
+Route::fallback(PublicRedirectController::class);
