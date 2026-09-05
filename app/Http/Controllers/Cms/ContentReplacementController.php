@@ -20,8 +20,10 @@ class ContentReplacementController extends Controller
         return redirect()->route('cms.replacements.edit', $replacement)->with('status', 'Replacement draft created. The live page has not changed.');
     }
 
-    public function edit(ContentUpdate $replacement): View
+    public function edit(ContentUpdate $replacement, Request $request): View
     {
+        abort_unless($request->user()->can('content.view'), 403);
+
         return view('cms.content.replacement', ['replacement' => $replacement->load(['contentItem', 'author', 'revisions']), 'types' => ContentType::cases()]);
     }
 

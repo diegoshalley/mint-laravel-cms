@@ -37,10 +37,12 @@
 - Independent review/approval and atomic immediate or scheduled live replacement
 - Pre/post replacement revision preservation with immutable audit history
 - Side-by-side live/proposed comparison for reviewers
+- Server-enforced authorization matrix covering every CMS role and sensitive read surface
+- Direct-request denial coverage for workflow, staff, navigation, redirects and media mutations
 
 ## Still required before the Phase 1 gate can pass
 
-- Complete automated authorization and browser-flow coverage
+- Complete browser-flow acceptance coverage
 - Performance and accessibility baselines
 
 The existence of screens is not acceptance evidence. Phase 1 passes only after separate editor,

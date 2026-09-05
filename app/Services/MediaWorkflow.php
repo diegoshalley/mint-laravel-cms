@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\MediaAsset;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use LogicException;
@@ -27,7 +28,7 @@ class MediaWorkflow
 
     public function approve(MediaAsset $asset, User $actor): MediaAsset
     {
-        if (! $actor->can('media.approve')) throw new LogicException('This user cannot approve media.');
+        if (! $actor->can('media.approve')) throw new AuthorizationException;
         if ($asset->uploaded_by === $actor->id) throw new LogicException('Uploaders cannot approve their own files.');
         if ($asset->status !== 'draft' || $asset->scan_status !== 'clean') throw new LogicException('Only clean draft files can be approved.');
 
@@ -46,7 +47,7 @@ class MediaWorkflow
 
     public function retire(MediaAsset $asset, User $actor): MediaAsset
     {
-        if (! $actor->can('media.approve')) throw new LogicException('This user cannot retire media.');
+        if (! $actor->can('media.approve')) throw new AuthorizationException;
         if ($asset->status !== 'approved') throw new LogicException('Only approved files can be retired.');
         $asset->update(['status' => 'retired', 'retired_at' => now()]);
         $this->audit->record('media.retired', $actor, $asset, ['status' => 'approved'], ['status' => 'retired']);

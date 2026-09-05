@@ -18,12 +18,19 @@ use Illuminate\View\View;
 
 class ContentController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        abort_unless($request->user()->can('content.view'), 403);
+
         return view('cms.content.index', ['items' => ContentItem::with(['author', 'updates' => fn ($query) => $query->whereIn('status', ['draft', 'in_review', 'approved', 'scheduled'])])->latest()->paginate(20)]);
     }
 
-    public function create(): View { return view('cms.content.form', ['item' => new ContentItem, 'types' => ContentType::cases()]); }
+    public function create(Request $request): View
+    {
+        abort_unless($request->user()->can('content.create'), 403);
+
+        return view('cms.content.form', ['item' => new ContentItem, 'types' => ContentType::cases()]);
+    }
 
     public function store(Request $request, ContentWorkflow $workflow, AuditRecorder $audit): RedirectResponse
     {
@@ -38,7 +45,12 @@ class ContentController extends Controller
         return redirect()->route('cms.content.edit', $item)->with('status', 'Draft created.');
     }
 
-    public function edit(ContentItem $content): View { return view('cms.content.form', ['item' => $content, 'types' => ContentType::cases()]); }
+    public function edit(Request $request, ContentItem $content): View
+    {
+        abort_unless($request->user()->can('content.view'), 403);
+
+        return view('cms.content.form', ['item' => $content, 'types' => ContentType::cases()]);
+    }
 
     public function update(Request $request, ContentItem $content, ContentWorkflow $workflow, AuditRecorder $audit): RedirectResponse
     {
