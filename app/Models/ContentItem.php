@@ -36,6 +36,7 @@ class ContentItem extends Model
     public function revisions(): HasMany { return $this->hasMany(ContentRevision::class); }
     public function transitions(): HasMany { return $this->hasMany(WorkflowTransition::class); }
     public function comments(): HasMany { return $this->hasMany(EditorialComment::class); }
+    public function updates(): HasMany { return $this->hasMany(ContentUpdate::class); }
 
     public function scopeVisible($query)
     {

@@ -3,7 +3,9 @@
 use App\Enums\PublishingStatus;
 use App\Models\ContentItem;
 use App\Models\MediaAsset;
+use App\Models\ContentUpdate;
 use App\Services\MediaWorkflow;
+use App\Services\PublishedContentWorkflow;
 use App\Models\WorkflowTransition;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -39,3 +41,11 @@ Artisan::command('media:scan-pending', function (MediaWorkflow $workflow): int {
 })->purpose('Scan quarantined media and documents for malware');
 
 Schedule::command('media:scan-pending')->everyMinute()->withoutOverlapping();
+
+Artisan::command('content:apply-scheduled-replacements', function (PublishedContentWorkflow $workflow): int {
+    ContentUpdate::query()->where('status', PublishingStatus::Scheduled)->where('effective_at', '<=', now())
+        ->oldest('effective_at')->limit(100)->get()->each(fn (ContentUpdate $update) => $workflow->applyScheduled($update));
+    return 0;
+})->purpose('Atomically apply approved replacements when they become due');
+
+Schedule::command('content:apply-scheduled-replacements')->everyMinute()->withoutOverlapping();

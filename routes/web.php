@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\MfaController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Cms\ContentController;
+use App\Http\Controllers\Cms\ContentReplacementController;
 use App\Http\Controllers\Cms\AuditController;
 use App\Http\Controllers\Cms\DashboardController;
 use App\Http\Controllers\Cms\EditorialCommentController;
@@ -52,6 +53,10 @@ Route::middleware(['auth', 'active', 'verified', 'password.changed', 'mfa.enroll
         Route::post('content/{content}/transition', [ContentController::class, 'transition'])->name('content.transition');
         Route::post('content/{content}/comments', [EditorialCommentController::class, 'store'])->name('content.comments.store');
         Route::post('content/{content}/revisions/{revision}/restore', [ContentController::class, 'restore'])->name('content.revisions.restore');
+        Route::post('content/{content}/replacement', [ContentReplacementController::class, 'store'])->name('content.replacements.store');
+        Route::get('replacements/{replacement}/edit', [ContentReplacementController::class, 'edit'])->name('replacements.edit');
+        Route::put('replacements/{replacement}', [ContentReplacementController::class, 'update'])->name('replacements.update');
+        Route::post('replacements/{replacement}/transition', [ContentReplacementController::class, 'transition'])->name('replacements.transition');
         Route::get('audit', AuditController::class)->name('audit.index');
         Route::resource('users', UserController::class)->except(['show', 'destroy']);
         Route::resource('media', MediaController::class)->only(['index', 'create', 'store']);

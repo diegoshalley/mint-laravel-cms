@@ -20,7 +20,7 @@ class ContentController extends Controller
 {
     public function index(): View
     {
-        return view('cms.content.index', ['items' => ContentItem::with('author')->latest()->paginate(20)]);
+        return view('cms.content.index', ['items' => ContentItem::with(['author', 'updates' => fn ($query) => $query->whereIn('status', ['draft', 'in_review', 'approved', 'scheduled'])])->latest()->paginate(20)]);
     }
 
     public function create(): View { return view('cms.content.form', ['item' => new ContentItem, 'types' => ContentType::cases()]); }

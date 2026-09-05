@@ -33,10 +33,13 @@
 - Enumeration-resistant password reset requests with throttling and 30-minute expiry
 - Strong password rules, single-use tokens, session revocation and reset audit events
 - Two-administrator lockout recovery with MFA/reset-token/session revocation
+- Isolated replacement drafts that never mutate the currently published version
+- Independent review/approval and atomic immediate or scheduled live replacement
+- Pre/post replacement revision preservation with immutable audit history
+- Side-by-side live/proposed comparison for reviewers
 
 ## Still required before the Phase 1 gate can pass
 
-- Side-by-side revision comparison and safe published-content replacement workflow
 - Complete automated authorization and browser-flow coverage
 - Performance and accessibility baselines
 
