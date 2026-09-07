@@ -44,7 +44,7 @@
             <a class="{{ request()->routeIs('home') ? 'is-active' : '' }}" href="{{ route('home') }}">Home</a>
             <a class="{{ request()->routeIs('about.*') ? 'is-active' : '' }}" href="{{ route('about.index') }}">About</a>
             <a class="{{ request()->routeIs('services.*') ? 'is-active' : '' }}" href="{{ route('services.index') }}">Services</a>
-            <a href="#agencies">Agencies</a>
+            <a class="{{ request()->routeIs('agencies.*') ? 'is-active' : '' }}" href="{{ route('agencies.index') }}">Agencies</a>
             <a href="#news">News & Notices</a>
             <a href="#documents">Documents</a>
             <a href="#contact">Contact</a>
@@ -71,8 +71,8 @@
             <h2>Quick links</h2>
             <a href="{{ route('about.index') }}">About the Ministry</a>
             <a href="{{ route('services.index') }}">Public services</a>
+            <a href="{{ route('agencies.index') }}">Agencies</a>
             <a href="#news">News & notices</a>
-            <a href="#documents">Documents</a>
         </div>
         <div>
             <h2>Contact</h2>
