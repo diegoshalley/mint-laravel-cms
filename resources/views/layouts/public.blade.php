@@ -42,7 +42,7 @@
 
         <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation" data-primary-nav>
             <a class="{{ request()->routeIs('home') ? 'is-active' : '' }}" href="{{ route('home') }}">Home</a>
-            <a href="#about">About</a>
+            <a class="{{ request()->routeIs('about.*') ? 'is-active' : '' }}" href="{{ route('about.index') }}">About</a>
             <a class="{{ request()->routeIs('services.*') ? 'is-active' : '' }}" href="{{ route('services.index') }}">Services</a>
             <a href="#agencies">Agencies</a>
             <a href="#news">News & Notices</a>
@@ -69,10 +69,10 @@
         </div>
         <div>
             <h2>Quick links</h2>
+            <a href="{{ route('about.index') }}">About the Ministry</a>
             <a href="{{ route('services.index') }}">Public services</a>
             <a href="#news">News & notices</a>
             <a href="#documents">Documents</a>
-            <a href="#agencies">Agencies</a>
         </div>
         <div>
             <h2>Contact</h2>
