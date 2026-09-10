@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, feature/stage-1-public-home-services]
+  pull_request:
+    branches: [main]
+
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, sqlite3
+          coverage: none
+
+      - name: Validate Composer file
+        run: composer validate --no-check-lock
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Verify application boots
+        run: |
+          php artisan about
+          php artisan route:list
+
+      - name: PHP syntax check
+        run: find app bootstrap config database routes -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Lint
+        run: vendor/bin/pint --test
